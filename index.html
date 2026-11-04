@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আছিরগঞ্জ আলিম মাদরাসা - Admin Panel</title>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+:root{
+ --deep:#0a3d33;--green:#0f7a56;--green2:#14a06f;--gold:#c99a2e;--goldsoft:#f6ecd0;
+ --bg:#f2f5f2;--card:#ffffff;--text:#1b2a25;--muted:#66766d;--border:#dde5df;--soft:#eef3ef;
+ --red:#d24848;--redsoft:#fbeaea;--blue:#3b6fd4;--bluesoft:#e8effc;--greensoft:#e3f2ea;
+ --pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Crect x='16' y='16' width='32' height='32'/%3E%3Crect x='16' y='16' width='32' height='32' transform='rotate(45 32 32)'/%3E%3Ccircle cx='32' cy='32' r='5'/%3E%3C/g%3E%3C/svg%3E");
+ --patg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%230f7a56' stroke-width='1.2'%3E%3Crect x='16' y='16' width='32' height='32'/%3E%3Crect x='16' y='16' width='32' height='32' transform='rotate(45 32 32)'/%3E%3Ccircle cx='32' cy='32' r='5'/%3E%3C/g%3E%3C/svg%3E");
+ --serif:'Noto Serif Bengali',serif;--sans:'Noto Sans Bengali',sans-serif;
+ --ring:0 0 0 3px rgba(20,160,111,.22);--pop:0 18px 50px rgba(8,40,32,.18);
+}
+body.dark{
+ --deep:#06231d;--green:#2fb383;--green2:#3cc795;--gold:#dcb350;--goldsoft:#3a3220;
+ --bg:#0c1511;--card:#14201b;--text:#e7f0eb;--muted:#92a69b;--border:#25352e;--soft:#1a2923;
+ --red:#ef7373;--redsoft:#3a2123;--blue:#7ba3f0;--bluesoft:#1e2a44;--greensoft:#1b3328;
+ --pop:0 18px 50px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--sans)}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;font-size:14px;line-height:1.6}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--green2);outline-offset:2px}
+h1,h2,h3,h4,.serif{font-family:var(--serif)}
+.material-icons-round{font-size:20px;line-height:1;vertical-align:middle;flex:none}
+
+/* ---------- Login ---------- */
+#loginPage{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(160deg,#0d4a3d,#062a22 70%);overflow:auto}
+#loginPage::before{content:"";position:absolute;inset:0;background:var(--pat);opacity:.07}
+.login-card{position:relative;width:min(430px,100%);background:var(--card);border-radius:26px 26px 14px 14px;padding:0 34px 34px;box-shadow:var(--pop);text-align:center;overflow:hidden}
+.login-card::before{content:"";display:block;height:120px;margin:0 -34px 0;background:linear-gradient(160deg,#0f6b52,#0a3d33);position:relative}
+.login-card::after{content:"";position:absolute;left:0;right:0;top:0;height:120px;background:var(--pat);opacity:.12;pointer-events:none}
+.logo-circle{position:relative;z-index:1;width:96px;height:96px;margin:-52px auto 14px;border-radius:50%;overflow:hidden;background:#fff;border:4px solid var(--card);box-shadow:0 8px 24px rgba(8,40,32,.25)}
+.logo-circle img{width:100%;height:100%;object-fit:cover}
+.login-card h2{color:var(--green);font-size:24px;font-weight:700}
+.subtitle{color:var(--muted);font-size:13px;margin:4px 0 22px}
+.login-card .form-group{text-align:left;margin:14px 0}
+.login-card label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.input-wrap{position:relative;display:flex;align-items:center;width:100%}
+.input-wrap span.material-icons-round{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.input-wrap input{padding-left:46px;flex:1}
+.login-btn{width:100%;border:0;padding:14px;border-radius:12px;background:var(--green);color:#fff;font-weight:700;font-size:15px;margin-top:10px;transition:background .15s}
+.login-btn:hover{background:var(--green2)}
+.forgot-link{display:block;color:var(--green);font-weight:600;margin-top:16px;font-size:13.5px;cursor:pointer}
+.login-error{display:none;margin-top:12px;color:var(--red);font-size:13px;background:var(--redsoft);padding:9px 12px;border-radius:10px;text-align:left}
+
+/* ---------- Modal ---------- */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,25,20,.65);z-index:6000;display:none;place-items:center;padding:15px}
+.modal-overlay.active{display:grid}
+.modal-content{width:min(420px,100%);background:var(--card);padding:26px;border-radius:18px;box-shadow:var(--pop)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.close-btn{border:0;background:var(--soft);color:var(--muted);width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+
+/* ---------- Layout ---------- */
+#adminLayout{display:none;height:100vh;width:100%}
+#adminLayout.active{display:flex}
+.sidebar{width:262px;flex:none;background:var(--deep);color:#fff;padding:0 0 14px;display:flex;flex-direction:column;position:relative;z-index:60;overflow:hidden}
+.sidebar::before{content:"";position:absolute;inset:0;background:var(--pat);opacity:.045;pointer-events:none}
+.brand{position:relative;display:flex;align-items:center;gap:12px;padding:20px 18px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-logo{width:50px;height:50px;border-radius:50%;background:#fff;padding:2px;overflow:hidden;flex:none;border:2px solid var(--gold)}
+.brand-logo img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.brand h2{font-size:15.5px;line-height:1.35;font-weight:700}
+.brand p{font-size:12px;color:#a9cbbf;margin-top:1px}
+.nav-menu{position:relative;padding:8px 12px 6px;flex:1;overflow:auto}
+.nav-menu::-webkit-scrollbar{width:0}
+.nav-group{font-size:11.5px;color:#7fa89a;padding:16px 10px 6px;font-weight:600;letter-spacing:.2px}
+.nav-item{position:relative;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:#cfe4db;margin-bottom:2px;font-size:14px;font-weight:500;transition:background .15s,color .15s;cursor:pointer}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.12);color:#fff;font-weight:700}
+.nav-item.active::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:4px;border-radius:0 4px 4px 0;background:var(--gold)}
+.nav-item.active .material-icons-round{color:var(--gold)}
+.nav-item.publish .material-icons-round{color:#f1d27a}
+.logout{position:relative;margin:8px 14px 0;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:#e6f2ed;font-weight:600;display:flex;align-items:center;gap:8px;justify-content:center;transition:background .15s}
+.logout:hover{background:rgba(255,255,255,.08)}
+.scrim{display:none;position:fixed;inset:0;background:rgba(5,25,20,.55);z-index:55}
+.scrim.show{display:block}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:68px;flex:none;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;gap:14px;position:relative;z-index:50}
+.left-head{display:flex;align-items:center;gap:12px;min-width:0}
+#topbar-title{font-family:var(--serif);font-size:19px;font-weight:700;display:block;line-height:1.3}
+.menu-btn,.icon-btn,.mode-more-btn{width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);display:grid;place-items:center;transition:background .15s,border-color .15s}
+.menu-btn{display:none}
+.icon-btn:hover,.mode-more-btn:hover,.menu-btn:hover{background:var(--soft);border-color:var(--green)}
+.search{width:min(340px,30vw);position:relative}
+.search span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search input{padding-left:42px;background:var(--soft);border-color:transparent}
+.top-actions{display:flex;align-items:center;gap:8px}
+.admin-user{display:flex;align-items:center;gap:10px;margin-left:6px;padding-left:12px;border-left:1px solid var(--border)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center}
+.admin-user b{font-size:13px;display:block;line-height:1.3}
+#adminEmail{font-size:11.5px;color:var(--muted);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mode-menu-wrap{position:relative;flex:none}
+.mode-menu{position:absolute;top:48px;right:0;width:190px;padding:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--pop);display:none;z-index:1000}
+.mode-menu.show{display:block}
+.mode-option{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600;text-align:left}
+.mode-option:hover{background:var(--soft)}
+.mode-option.active{background:var(--greensoft);color:var(--green)}
+.mode-divider{height:1px;background:var(--border);margin:4px 2px}
+
+.content{overflow:auto;flex:1;padding:24px 28px 48px}
+.section{display:none;max-width:1280px;margin:0 auto}
+.section.active{display:block}
+.page-head{margin-bottom:20px}
+.page-head h2{font-size:22px;font-weight:700;line-height:1.35}
+.page-head p{color:var(--muted);font-size:13.5px;margin-top:2px;max-width:70ch}
+
+/* ---------- Hero (dashboard) ---------- */
+.hero{position:relative;min-height:170px;border-radius:22px 22px 22px 6px;padding:30px 34px;margin-bottom:20px;overflow:hidden;background:linear-gradient(120deg,#0d5a46,#0a3d33);color:#fff}
+.hero::before{content:"";position:absolute;right:-30px;top:-30px;bottom:-30px;width:55%;background:var(--pat);opacity:.14;-webkit-mask-image:linear-gradient(90deg,transparent,#000 60%);mask-image:linear-gradient(90deg,transparent,#000 60%)}
+.hero::after{content:"";position:absolute;right:46px;bottom:0;width:120px;height:150px;border:2px solid rgba(241,210,122,.55);border-bottom:0;border-radius:60px 60px 0 0}
+.hero h1{position:relative;font-size:30px;font-weight:700;line-height:1.35}
+.hero p{position:relative;color:#bfdccf;margin-top:6px;max-width:48ch}
+.date-chip{position:relative;display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 13px;background:rgba(255,255,255,.12);border-radius:99px;color:#e6f2ed;font-size:12.5px}
+.date-chip .material-icons-round{font-size:17px;color:#f1d27a}
+
+/* ---------- Stat strip ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.stat{display:flex;align-items:center;gap:14px;padding:18px 20px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:0}
+.stat-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--greensoft);color:var(--green)}
+.stat-icon .material-icons-round{font-size:24px}
+.stat.red .stat-icon{background:var(--redsoft);color:var(--red)}
+.stat.gold .stat-icon{background:var(--goldsoft);color:var(--gold)}
+.stat h3{font-size:28px;line-height:1.1;font-weight:700}
+.stat p{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+/* ---------- Cards & panels ---------- */
+.grid-main{display:grid;grid-template-columns:1.55fr .8fr .95fr;gap:16px;margin-bottom:16px}
+.bottom-grid{display:grid;grid-template-columns:1.6fr .8fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.section>.card+.card,.section>.info-card+.card,.section>.card+.info-card{margin-top:16px}
+.card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:var(--serif);font-weight:700;font-size:16px}
+.table-wrap{overflow:auto;border-radius:10px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:13.5px;text-align:left;white-space:nowrap}
+th{color:var(--muted);font-size:12.5px;font-weight:600;background:var(--soft);border-bottom:1px solid var(--border)}
+th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
+tbody tr:hover td{background:var(--soft)}
+.badge{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12px;font-weight:600}
+.badge-published{background:var(--greensoft);color:var(--green)}
+.badge-draft{background:var(--goldsoft);color:#9a6f0e}
+body.dark .badge-draft{color:var(--gold)}
+.donut{width:168px;height:168px;border-radius:50%;margin:10px auto 14px;display:grid;place-items:center}
+.donut:before{content:"মোট\A শিক্ষার্থী";white-space:pre;text-align:center;font-family:var(--serif);font-size:15px;font-weight:700;display:grid;place-items:center;width:114px;height:114px;border-radius:50%;background:var(--card);line-height:1.4}
+.legend{display:flex;justify-content:center;gap:18px;font-size:12.5px;color:var(--muted)}
+.dot{width:10px;height:10px;display:inline-block;border-radius:50%;background:var(--green);margin-right:5px}
+.dot.gold{background:var(--gold)}
+
+.notice{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.notice:last-child{border:0}
+.notice-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--redsoft);color:var(--red);flex:none}
+.notice h4{font-family:var(--sans);font-size:14px;font-weight:700;line-height:1.5}
+.notice p{font-size:12.5px;color:var(--muted);margin-top:3px;white-space:pre-wrap;line-height:1.6}
+.notice .acts{display:flex;gap:6px;flex:none}
+
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.quick{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--card);border-radius:12px;padding:14px;text-align:left;color:var(--text);transition:border-color .15s,background .15s}
+.quick:hover{border-color:var(--green);background:var(--soft)}
+.quick span{font-size:22px;color:var(--green);width:42px;height:42px;border-radius:10px;background:var(--greensoft);display:grid;place-items:center;flex:none}
+.quick small{font-size:13px;font-weight:600;line-height:1.4}
+.timeline-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.timeline-item:last-child{border:0}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--green);margin-top:7px;flex:none}
+.timeline-item p{font-size:13px;line-height:1.6}
+.timeline-item small{color:var(--muted);font-size:11.5px}
+
+/* ---------- Forms ---------- */
+.form-card{max-width:1100px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.form-grid.g3{grid-template-columns:repeat(3,1fr)}
+.form-group{margin-bottom:14px}
+.form-group label{font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:var(--text)}
+.form-control{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);outline:none;font-size:14px;transition:border-color .15s,box-shadow .15s}
+.form-control:hover{border-color:#b9c8bf}
+body.dark .form-control:hover{border-color:#3a4f46}
+.form-control:focus{border-color:var(--green2);box-shadow:var(--ring)}
+select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2366766d' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+textarea.form-control{resize:vertical;line-height:1.7}
+.btn{border:1px solid transparent;border-radius:10px;padding:9px 15px;font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,border-color .15s,color .15s}
+.btn .material-icons-round{font-size:18px}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green2)}
+.btn-outline{background:var(--card);border-color:var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-danger{background:var(--redsoft);color:var(--red);border-color:transparent}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-warning{background:var(--goldsoft);color:#8a620a}
+body.dark .btn-warning{color:var(--gold)}
+.btn-warning:hover{background:var(--gold);color:#fff}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.action-row{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap;align-items:center}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.section-head h3{font-size:16px}
+.info-card{background:var(--greensoft);border:1px solid transparent;border-left:4px solid var(--green);border-radius:6px 14px 14px 6px;padding:16px 20px}
+.info-card h3{color:var(--green);font-size:16px;margin-bottom:4px}
+.info-card p{font-size:13px;color:var(--muted);line-height:1.7;max-width:80ch}
+.info-card .filters{margin-top:14px}
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+.filters .form-control{max-width:210px}
+.hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.7}
+.toast{position:fixed;right:22px;bottom:22px;z-index:7000;background:var(--deep);color:#fff;padding:12px 18px;border-radius:10px;border-left:4px solid var(--gold);box-shadow:var(--pop);transform:translateY(90px);opacity:0;transition:.25s;font-weight:500}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ---------- Teachers ---------- */
+.teacher-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.teacher-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--card);display:flex;flex-direction:column;gap:12px;transition:border-color .15s}
+.teacher-card:hover{border-color:var(--green)}
+.teacher-card-top{display:flex;align-items:center;gap:12px}
+.teacher-card-avatar{width:50px;height:50px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:20px;flex-shrink:0;overflow:hidden;border:2px solid var(--goldsoft)}
+.teacher-card-avatar img{width:100%;height:100%;object-fit:cover}
+.teacher-card-name{font-weight:700;font-size:14.5px;line-height:1.4;word-break:break-word}
+.teacher-card-role{display:inline-block;font-size:12px;font-weight:600;color:var(--green);background:var(--greensoft);padding:1px 10px;border-radius:99px;margin-top:4px}
+.teacher-card-phone{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:8px 11px;background:var(--soft);border-radius:8px}
+.teacher-card-phone .material-icons-round{font-size:17px;color:var(--green)}
+.teacher-card-actions{display:flex;gap:8px}
+.teacher-card-actions .btn{flex:1;padding:7px 6px;font-size:13px}
+.empty-admin{grid-column:1/-1;text-align:center;padding:44px 15px;color:var(--muted)}
+.empty-admin span{display:block;font-size:38px;margin-bottom:8px}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;padding:0 9px;border-radius:99px;background:var(--greensoft);color:var(--green);margin-left:7px;vertical-align:middle;line-height:1.7}
+.tag.red{background:var(--redsoft);color:var(--red)}
+
+/* ---------- Images ---------- */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.img-box{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--card)}
+.img-box h4{font-family:var(--sans);font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:2px}
+.img-preview{height:160px;border-radius:10px;background:var(--soft) var(--patg);background-size:48px;border:1px dashed var(--border);display:grid;place-items:center;overflow:hidden;margin:12px 0}
+.img-preview img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.img-preview.round img{border-radius:50%;height:130px;width:130px;object-fit:cover}
+.img-preview span{color:var(--muted);font-size:12.5px;background:var(--card);padding:3px 10px;border-radius:99px}
+.img-btns{display:flex;gap:8px;margin-top:10px}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1100px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .stat:nth-child(2){border-right:0}
+ .stat:nth-child(-n+2){border-bottom:1px solid var(--border)}
+ .grid-main{grid-template-columns:1fr 1fr}
+ .grid-main>.card:first-child{grid-column:span 2}
+ .bottom-grid{grid-template-columns:1fr}
+ .form-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+ body{overflow:auto}
+ .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-105%);transition:transform .25s;box-shadow:10px 0 35px rgba(0,0,0,.3)}
+ .sidebar.open{transform:translateX(0)}
+ .menu-btn{display:grid}
+ .topbar{padding:0 14px;height:62px}
+ #topbar-title{font-size:17px}
+ .content{padding:16px 14px 40px}
+ .search{display:none}
+ .admin-user>div:last-child{display:none}
+ .admin-user{border:0;padding:0;margin:0}
+ .hero{padding:24px 22px;min-height:150px}
+ .hero h1{font-size:23px}
+ .hero::after{display:none}
+ .stat{padding:14px;gap:10px}
+ .stat-icon{width:40px;height:40px}
+ .stat h3{font-size:22px}
+ .grid-main,.form-grid,.form-grid.g3{grid-template-columns:1fr}
+ .grid-main>.card:first-child{grid-column:auto}
+ .quick-grid{grid-template-columns:1fr 1fr}
+ .mode-menu{right:-4px}
+ .login-card{padding:0 22px 26px}.login-card::before{margin:0 -22px}
+}
+body.force-mobile{overflow:auto}
+body.force-mobile .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-105%);transition:transform .25s;box-shadow:10px 0 35px rgba(0,0,0,.3)}
+body.force-mobile .sidebar.open{transform:translateX(0)}
+body.force-mobile .menu-btn{display:grid}
+body.force-mobile .topbar{height:62px;padding:0 14px}
+body.force-mobile .content{padding:16px 14px 40px}
+body.force-mobile .search{display:none}
+body.force-mobile .admin-user>div:last-child{display:none}
+body.force-mobile .stats{grid-template-columns:repeat(2,1fr)}
+body.force-mobile .stat:nth-child(2){border-right:0}
+body.force-mobile .stat:nth-child(-n+2){border-bottom:1px solid var(--border)}
+body.force-mobile .grid-main,body.force-mobile .bottom-grid,body.force-mobile .form-grid,body.force-mobile .form-grid.g3{grid-template-columns:1fr}
+body.force-mobile .grid-main>.card:first-child{grid-column:auto}
+body.force-mobile .quick-grid{grid-template-columns:1fr 1fr}
+body.force-mobile .hero::after{display:none}
+body.force-mobile .main{width:100%;min-width:0}
+body.force-pc{overflow:auto}
+body.force-pc #adminLayout{min-width:1000px}
+body.force-pc .sidebar{position:relative;transform:none!important;box-shadow:none}
+body.force-pc .menu-btn{display:none!important}
+body.force-pc .search{display:block}
+body.force-pc .admin-user>div:last-child{display:block}
+body.force-pc .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.force-pc .stat{border-bottom:0;border-right:1px solid var(--border)}
+body.force-pc .stat:last-child{border-right:0}
+body.force-pc .grid-main{grid-template-columns:1.55fr .8fr .95fr}
+body.force-pc .bottom-grid{grid-template-columns:1.6fr .8fr}
+body.force-pc .form-grid{grid-template-columns:repeat(4,1fr)}
+body.force-pc .form-grid.g3{grid-template-columns:repeat(3,1fr)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="registerModal" class="modal-overlay"><div class="modal-content">
+ <div class="modal-header"><h3>নতুন Admin Account</h3><button class="close-btn" onclick="toggleRegisterModal()"><span class="material-icons-round">close</span></button></div>
+ <div class="form-group"><label>ইমেইল</label><input id="regEmail" type="email" class="form-control" placeholder="admin@example.com"></div>
+ <div class="form-group"><label>পাসওয়ার্ড</label><input id="regPassword" type="password" class="form-control"></div>
+ <div class="form-group"><label>গোপন কোড</label><input id="regSecret" type="password" class="form-control"></div>
+ <button class="login-btn" onclick="createAccount()">Account তৈরি করুন</button>
+ <p id="regError" class="login-error"></p>
+</div></div>
+
+<div id="activateModal" class="modal-overlay"><div class="modal-content">
+ <div class="modal-header"><h3>Admin অ্যাক্সেস চালু করুন</h3></div>
+ <p style="color:var(--muted);font-size:13px;margin-bottom:12px">এই অ্যাকাউন্টে (<b id="actEmail"></b>) এখনো Admin অনুমতি নেই। মাদরাসা কর্তৃপক্ষের দেওয়া গোপন কোড দিন।</p>
+ <div class="form-group"><label>গোপন কোড</label><input id="actCode" type="password" class="form-control" onkeypress="if(event.key==='Enter')activateAccess()"></div>
+ <button class="login-btn" onclick="activateAccess()">অ্যাক্সেস চালু করুন</button>
+ <a class="forgot-link" onclick="logoutAdmin()">লগআউট করুন</a>
+ <p id="actError" class="login-error"></p>
+</div></div>
+
+<div id="loginPage"><div class="login-card">
+ <div class="logo-circle"><img src="https://i.ibb.co/q30vd41H/file-000000005704820b91065a2424f27c5b.png" alt="Logo"></div>
+ <h2>আছিরগঞ্জ আলিম মাদরাসা</h2>
+ <p class="subtitle">Professional Admin Management Panel</p>
+ <div class="form-group"><label>ইমেইল</label><div class="input-wrap"><span class="material-icons-round">email</span><input id="loginEmail" type="email" class="form-control" placeholder="admin@example.com"></div></div>
+ <div class="form-group"><label>পাসওয়ার্ড</label><div class="input-wrap"><span class="material-icons-round">lock</span><input id="loginPassword" type="password" class="form-control" placeholder="••••••••" onkeypress="if(event.key==='Enter')loginAdmin()"></div></div>
+ <button class="login-btn" onclick="loginAdmin()">লগইন করুন</button>
+ <a class="forgot-link" onclick="toggleRegisterModal()">+ Create Account</a>
+ <p id="loginError" class="login-error"></p>
+</div></div>
+
+<div id="scrim" class="scrim" onclick="toggleSidebar()"></div>
+<div id="adminLayout">
+ <aside class="sidebar" id="sidebar">
+  <div class="brand">
+   <div class="brand-logo"><img id="brandLogo" src="https://i.ibb.co/q30vd41H/file-000000005704820b91065a2424f27c5b.png" alt=""></div>
+   <div><h2>আছিরগঞ্জ আলিম মাদরাসা</h2><p>Admin Panel</p></div>
+  </div>
+  <div class="nav-menu">
+   <div class="nav-item active" data-tab="dashboard"><span class="material-icons-round">dashboard</span> ড্যাশবোর্ড</div>
+   <div class="nav-group">ফলাফল</div>
+   <div class="nav-item" data-tab="add-result"><span class="material-icons-round">note_add</span> নতুন রেজাল্ট যোগ</div>
+   <div class="nav-item" data-tab="student-list"><span class="material-icons-round">groups</span> শিক্ষার্থী তালিকা</div>
+   <div class="nav-item publish" data-tab="published-results"><span class="material-icons-round">campaign</span> রেজাল্ট প্রকাশ</div>
+   <div class="nav-group">তথ্য ও বিষয়বস্তু</div>
+   <div class="nav-item" data-tab="notices"><span class="material-icons-round">article</span> নোটিশ বোর্ড</div>
+   <div class="nav-item" data-tab="events"><span class="material-icons-round">event</span> অনুষ্ঠানসমূহ</div>
+   <div class="nav-item" data-tab="videos"><span class="material-icons-round">smart_display</span> ভিডিও</div>
+   <div class="nav-item" data-tab="live"><span class="material-icons-round">sensors</span> লাইভ সম্প্রচার</div>
+   <div class="nav-item" data-tab="teachers"><span class="material-icons-round">contacts</span> শিক্ষক ও কর্মচারী</div>
+   <div class="nav-item" data-tab="images"><span class="material-icons-round">image</span> অ্যাপের ছবি</div>
+   <div class="nav-group">সিস্টেম</div>
+   <div class="nav-item" data-tab="settings"><span class="material-icons-round">settings</span> মাদরাসা সেটিংস</div>
+   <div class="nav-item" data-tab="ai-settings"><span class="material-icons-round">psychology</span> 🤖 AI নির্দেশনা</div>
+  </div>
+  <button class="logout" onclick="logoutAdmin()"><span class="material-icons-round">logout</span> লগআউট</button>
+ </aside>
+
+ <div class="main">
+  <header class="topbar">
+   <div class="left-head">
+    <button class="menu-btn" onclick="toggleSidebar()"><span class="material-icons-round">menu</span></button>
+    <div><b id="topbar-title">ড্যাশবোর্ড</b><div style="font-size:11px;color:var(--muted)">আছিরগঞ্জ আলিম মাদরাসা</div></div>
+   </div>
+   <div class="search"><span class="material-icons-round">search</span><input id="globalSearch" class="form-control" placeholder="খুঁজুন শিক্ষার্থী, ID..." oninput="globalSearch()"></div>
+   <div class="top-actions">
+    <button class="icon-btn" onclick="toggleTheme()"><span id="themeIcon" class="material-icons-round">dark_mode</span></button>
+    <div class="mode-menu-wrap">
+     <button class="mode-more-btn" onclick="toggleModeMenu(event)"><span class="material-icons-round">more_vert</span></button>
+     <div class="mode-menu" id="modeMenu">
+      <button class="mode-option" id="pcModeBtn" onclick="setViewMode('pc')"><span class="material-icons-round">desktop_windows</span><span>PC Mode</span></button>
+      <div class="mode-divider"></div>
+      <button class="mode-option" id="mobileModeBtn" onclick="setViewMode('mobile')"><span class="material-icons-round">phone_android</span><span>Mobile Mode</span></button>
+     </div>
+    </div>
+    <div class="admin-user"><div class="avatar"><span class="material-icons-round">person</span></div><div><b>Admin User</b><div id="adminEmail">admin@madrasa.bd</div></div></div>
+   </div>
+  </header>
+
+  <div class="content">
+
+   <!-- DASHBOARD -->
+   <section id="dashboard" class="section active">
+    <div class="hero"><h1>স্বাগতম, Admin! 👋</h1><p>আছিরগঞ্জ আলিম মাদরাসা Admin Panel-এ আপনাকে স্বাগতম।</p>
+     <div class="date-chip"><span class="material-icons-round">calendar_today</span><span id="todayDate"></span></div></div>
+    <div class="stats">
+     <div class="stat"><div class="stat-icon"><span class="material-icons-round">school</span></div><div><h3 id="totalStudents">০</h3><p>মোট শিক্ষার্থী</p></div></div>
+     <div class="stat"><div class="stat-icon"><span class="material-icons-round">verified</span></div><div><h3 id="totalPass">০</h3><p>মোট পাস</p></div></div>
+     <div class="stat red"><div class="stat-icon"><span class="material-icons-round">close</span></div><div><h3 id="totalFail">০</h3><p>মোট ফেল</p></div></div>
+     <div class="stat gold"><div class="stat-icon"><span class="material-icons-round">notifications</span></div><div><h3 id="totalNotices">০</h3><p>মোট নোটিশ</p></div></div>
+    </div>
+    <div class="grid-main">
+     <div class="card"><div class="card-title">সাম্প্রতিক শিক্ষার্থী</div>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>রোল</th><th>স্ট্যাটাস</th></tr></thead><tbody id="recentStudents"></tbody></table></div></div>
+     <div class="card"><div class="card-title">রেজাল্ট প্রকাশের সারসংক্ষেপ</div><div class="donut" id="donutChart"></div>
+      <div class="legend"><span><i class="dot"></i>Published:<span id="publishedCount">০</span></span><span><i class="dot gold"></i>Draft:<span id="draftCount">০</span></span></div></div>
+     <div class="card"><div class="card-title">গুরুত্বপূর্ণ নোটিশ</div><div id="dashboardNotices"></div></div>
+    </div>
+    <div class="bottom-grid">
+     <div class="card"><div class="card-title">দ্রুত অ্যাক্সেস</div>
+      <div class="quick-grid">
+       <button class="quick" onclick="goTab('add-result')"><span class="material-icons-round">note_add</span><small>নতুন রেজাল্ট</small></button>
+       <button class="quick" onclick="goTab('student-list')"><span class="material-icons-round">format_list_numbered</span><small>অটো রোল</small></button>
+       <button class="quick" onclick="goTab('published-results')"><span class="material-icons-round">campaign</span><small>রেজাল্ট প্রকাশ</small></button>
+       <button class="quick" onclick="goTab('notices')"><span class="material-icons-round">post_add</span><small>নোটিশ</small></button>
+       <button class="quick" onclick="goTab('videos')"><span class="material-icons-round">smart_display</span><small>ভিডিও</small></button>
+       <button class="quick" onclick="goTab('live')"><span class="material-icons-round">sensors</span><small>লাইভ সম্প্রচার</small></button>
+       <button class="quick" onclick="goTab('images')"><span class="material-icons-round">image</span><small>অ্যাপের ছবি</small></button>
+      </div></div>
+     <div class="card"><div class="card-title">আজকের কার্যক্রম</div><div id="timelineContainer"></div></div>
+    </div>
+   </section>
+
+   <!-- ADD RESULT -->
+   <section id="add-result" class="section">
+    <div class="page-head"><h2>নতুন রেজাল্ট যোগ</h2><p>শিক্ষার্থীর তথ্য ও বিষয়ভিত্তিক নম্বর দিন। সেভ করলে রেজাল্ট খসড়া (Draft) হিসেবে থাকে, প্রকাশ না করা পর্যন্ত অ্যাপে দেখা যায় না।</p></div>
+    <div class="card form-card">
+     <div class="section-head"><h3 id="formTitle">নতুন রেজাল্ট যোগ করুন</h3></div>
+     <input type="hidden" id="editingStudentId">
+     <div class="form-grid">
+      <div class="form-group"><label>শিক্ষার্থীর নাম *</label><input id="studentName" class="form-control"></div>
+      <div class="form-group"><label>Student ID *</label><input id="studentIdInput" class="form-control"></div>
+      <div class="form-group"><label>Roll Number</label><input id="rollInput" class="form-control" placeholder="ঐচ্ছিক"></div>
+      <div class="form-group"><label>শাখা</label><input id="sectionInput" class="form-control"></div>
+      <div class="form-group"><label>পিতার নাম</label><input id="fatherName" class="form-control"></div>
+      <div class="form-group"><label>মাতার নাম</label><input id="motherName" class="form-control"></div>
+      <div class="form-group"><label>শ্রেণি</label><select id="classSelect" class="form-control"></select></div>
+      <div class="form-group"><label>পরীক্ষার ধরন</label><select id="examSelect" class="form-control"></select></div>
+      <div class="form-group"><label>শিক্ষাবর্ষ</label><select id="yearSelect" class="form-control"></select></div>
+     </div>
+     <hr style="border:0;border-top:1px solid var(--border);margin:15px 0">
+     <div class="section-head"><h3 style="font-size:16px;color:var(--green)">বিষয়ভিত্তিক নম্বর</h3><button class="btn btn-outline" onclick="addSubjectRow()">+ বিষয় যোগ করুন</button></div>
+     <div class="table-wrap"><table id="subjectTable"><thead><tr><th>বিষয়</th><th>পূর্ণমান</th><th>প্রাপ্ত নম্বর</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+     <div class="action-row">
+      <button class="btn btn-outline" onclick="resetStudentForm()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveStudentResult()"><span class="material-icons-round">save</span>সেভ করুন (Draft)</button>
+     </div>
+    </div>
+   </section>
+
+   <!-- STUDENT LIST -->
+   <section id="student-list" class="section">
+    <div class="info-card"><h3>Automatic Roll Generate</h3>
+     <p>নির্বাচিত Class, Exam এবং Year-এর শিক্ষার্থীদের Total Marks অনুযায়ী Descending Order-এ অটোমেটিক রোল তৈরি করুন।</p>
+     <div class="filters"><select id="autoRollClass" class="form-control"></select><select id="autoRollExam" class="form-control"></select><select id="autoRollYear" class="form-control"></select>
+      <button class="btn btn-primary" onclick="generateAutomaticRolls()">Generate Automatic Roll</button></div></div>
+    <div class="card">
+     <div class="section-head"><input id="studentSearchInput" class="form-control" style="max-width:300px" placeholder="নাম / ID দিয়ে খুঁজুন..." oninput="filterStudentList()">
+      <button id="deleteAllBtn" class="btn btn-danger" onclick="deleteAllStudents()">Delete all</button></div>
+     <div class="table-wrap"><table><thead><tr><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>রোল</th><th>স্ট্যাটাস</th><th>Action</th></tr></thead><tbody id="studentListBody"></tbody></table></div>
+    </div>
+   </section>
+
+   <!-- PUBLISH -->
+   <section id="published-results" class="section">
+    <div class="info-card"><h3>একসাথে রেজাল্ট প্রকাশ (Bulk Publish)</h3>
+     <p>শ্রেণি, পরীক্ষার ধরন এবং শিক্ষাবর্ষ নির্বাচন করে পুরো ব্যাচ একসাথে Publish বা Unpublish করুন।</p>
+     <div class="filters"><select id="batchClassSelect" class="form-control"></select><select id="batchExamSelect" class="form-control"></select><select id="batchYearSelect" class="form-control"></select>
+      <button class="btn btn-primary" onclick="publishBatchResults(true)">Publish Results</button>
+      <button class="btn btn-warning" onclick="publishBatchResults(false)">Unpublish</button></div></div>
+    <div class="card">
+     <div class="section-head"><input id="publishSearchInput" class="form-control" style="max-width:300px" placeholder="নাম / ID দিয়ে খুঁজুন..." oninput="filterPublishList()">
+      <select id="publishFilter" class="form-control" style="max-width:200px" onchange="filterPublishList()"><option value="all">সকল স্ট্যাটাস</option><option value="draft">Draft</option><option value="published">Published</option></select></div>
+     <div class="table-wrap"><table><thead><tr><th>ID</th><th>নাম</th><th>শ্রেণি</th><th>পরীক্ষা</th><th>বছর</th><th>স্ট্যাটাস</th><th>Action</th></tr></thead><tbody id="publishListBody"></tbody></table></div>
+    </div>
+   </section>
+
+   <!-- NOTICES -->
+   <section id="notices" class="section">
+    <div class="page-head"><h2>নোটিশ বোর্ড</h2><p>নোটিশ লিখুন, ক্যাটাগরি দিন ও গুরুত্বপূর্ণ নোটিশ পিন করুন। এগুলো ইউজার অ্যাপের নোটিশ পাতায় দেখায়।</p></div>
+    <div class="card form-card">
+     <h3 id="noticeFormTitle" style="margin-bottom:15px">নতুন নোটিশ যোগ করুন</h3>
+     <input type="hidden" id="editingNoticeId">
+     <div class="form-group"><label>শিরোনাম *</label><input id="noticeTitle" class="form-control"></div>
+     <div class="form-group"><label>বিস্তারিত</label><textarea id="noticeDetails" class="form-control" rows="4"></textarea></div>
+     <div class="form-grid g3">
+      <div class="form-group"><label>ক্যাটাগরি (ইউজার অ্যাপে ফিল্টার হিসেবে দেখায়)</label><input id="noticeCategory" class="form-control" list="catList" placeholder="যেমন: পরীক্ষা, ছুটি, ভর্তি"><datalist id="catList"></datalist></div>
+      <div class="form-group"><label>সংযুক্তি লিংক (PDF/ছবি, ঐচ্ছিক)</label><input id="noticeAttachment" class="form-control" placeholder="https://..."></div>
+      <div class="form-group"><label>&nbsp;</label><label style="font-weight:600;display:flex;gap:8px;align-items:center;padding-top:10px"><input type="checkbox" id="noticeImportant"> 📌 গুরুত্বপূর্ণ (উপরে পিন থাকবে)</label></div>
+     </div>
+     <div class="action-row">
+      <button class="btn btn-outline" onclick="resetNoticeForm()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveNotice()"><span class="material-icons-round">send</span>নোটিশ প্রকাশ করুন</button>
+     </div>
+    </div>
+    <div class="card"><div class="card-title">সকল নোটিশ</div><div id="noticeListAdmin"></div></div>
+   </section>
+
+   <!-- EVENTS -->
+   <section id="events" class="section">
+    <div class="page-head"><h2>অনুষ্ঠানসমূহ</h2><p>তারিখ দিয়ে অনুষ্ঠান যোগ করুন। ইউজার অ্যাপের ক্যালেন্ডারে সেই তারিখে চিহ্ন দেখায়।</p></div>
+    <div class="card form-card">
+     <h3 id="eventFormTitle" style="margin-bottom:15px">নতুন অনুষ্ঠান যোগ করুন</h3>
+     <input type="hidden" id="editingEventId">
+     <div class="form-group"><label>অনুষ্ঠানের নাম *</label><input id="eventName" class="form-control"></div>
+     <div class="form-group"><label>বিস্তারিত</label><textarea id="eventDetails" class="form-control" rows="3"></textarea></div>
+     <div class="form-grid">
+      <div class="form-group"><label>তারিখ</label><input id="eventDate" type="date" class="form-control"></div>
+      <div class="form-group"><label>সময়</label><input id="eventTime" type="time" class="form-control"></div>
+      <div class="form-group"><label>স্থান</label><input id="eventVenue" class="form-control"></div>
+      <div class="form-group"><label>স্ট্যাটাস</label><select id="eventStatus" class="form-control"><option>আসন্ন</option><option>চলমান</option></select></div>
+     </div>
+     <div class="action-row"><button class="btn btn-outline" onclick="resetEventForm()">বাতিল</button><button class="btn btn-primary" onclick="saveEvent()"><span class="material-icons-round">save</span>সংরক্ষণ করুন</button></div>
+    </div>
+    <div class="card"><div class="card-title">সকল অনুষ্ঠান</div><div id="eventListAdmin"></div></div>
+   </section>
+
+   <!-- LIVE -->
+   <section id="live" class="section">
+    <div class="info-card"><h3>🔴 লাইভ সম্প্রচার</h3>
+     <p>YouTube বা Facebook লাইভের লিংক বসিয়ে "লাইভ চালু করুন" চাপুন। ইউজার অ্যাপের হোম পেজে লাইভ দেখা যাবে। লাইভটি অবশ্যই Public হতে হবে।</p></div>
+    <div class="card form-card">
+     <div class="form-group"><label>লাইভের শিরোনাম</label><input id="liveTitle" class="form-control" placeholder="যেমন: বার্ষিক মাহফিল লাইভ"></div>
+     <div class="form-group"><label>লাইভের লিংক (YouTube / Facebook) *</label><input id="liveUrl" class="form-control" placeholder="https://..." oninput="livePrev()"></div>
+     <div id="livePv" class="hint"></div>
+     <div class="action-row">
+      <button class="btn btn-danger" onclick="stopLive()"><span class="material-icons-round">stop_circle</span>লাইভ বন্ধ করুন</button>
+      <button class="btn btn-primary" onclick="saveLive()"><span class="material-icons-round">sensors</span>লাইভ চালু করুন</button>
+     </div>
+     <p class="hint" id="liveSt"></p>
+    </div>
+   </section>
+
+   <!-- VIDEOS -->
+   <section id="videos" class="section">
+    <div class="info-card"><h3>🎬 ভিডিও ব্যবস্থাপনা</h3>
+     <p>এখানে ভিডিও যোগ করলে ইউজার অ্যাপের "ভিডিও" বিভাগে দেখাবে। মনে রাখবেন: এই তালিকায় অন্তত একটি ভিডিও থাকলে অ্যাপের ডিফল্ট ভিডিওর জায়গায় এই তালিকাই দেখানো হবে।</p></div>
+    <div class="card form-card">
+     <h3 id="videoFormTitle" style="margin-bottom:15px">নতুন ভিডিও যোগ করুন</h3>
+     <input type="hidden" id="editingVideoId">
+     <div class="form-grid g3">
+      <div class="form-group"><label>ভিডিওর শিরোনাম *</label><input id="videoTitle" class="form-control"></div>
+      <div class="form-group"><label>ভিডিও লিংক (সরাসরি .mp4) *</label><input id="videoUrl" class="form-control" placeholder="https://...mp4"></div>
+      <div class="form-group"><label>ক্যাটাগরি</label><input id="videoCategory" class="form-control" placeholder="ঐচ্ছিক"></div>
+     </div>
+     <div class="action-row"><button class="btn btn-outline" onclick="resetVideoForm()">বাতিল</button><button class="btn btn-primary" onclick="saveVideo()"><span class="material-icons-round">save</span>সংরক্ষণ করুন</button></div>
+    </div>
+    <div class="card"><div class="card-title">সকল ভিডিও (<span id="videoCount">০</span>)</div><div id="videoListAdmin"></div></div>
+   </section>
+
+   <!-- TEACHERS -->
+   <section id="teachers" class="section">
+    <div class="page-head"><h2>শিক্ষক ও কর্মচারী</h2><p>শিক্ষক, কর্মচারী ও প্রশাসনিক সদস্যের তথ্য যোগ করুন। বিভাগ বেছে দিলে অ্যাপে আলাদা গণনা দেখায়।</p></div>
+    <div class="card form-card">
+     <h3 id="teacherFormTitle" style="margin-bottom:15px">নতুন সদস্য যোগ করুন</h3>
+     <input type="hidden" id="editingTeacherId">
+     <div class="form-grid g3">
+      <div class="form-group"><label>নাম (বাংলা) *</label><input id="teacherName" class="form-control" placeholder="মোঃ আব্দুল করিম"></div>
+      <div class="form-group"><label>নাম (ইংরেজি, ঐচ্ছিক)</label><input id="teacherNameEn" class="form-control" placeholder="Md. Abdul Karim"></div>
+      <div class="form-group"><label>পদবি</label><input id="teacherRole" class="form-control" placeholder="সহকারী শিক্ষক"></div>
+      <div class="form-group"><label>বিভাগ</label><select id="teacherGroup" class="form-control"><option value="teacher">শিক্ষকবৃন্দ</option><option value="staff">কর্মচারীবৃন্দ</option><option value="admin">প্রশাসনিক</option></select></div>
+      <div class="form-group"><label>ফোন নাম্বার *</label><input id="teacherPhone" type="tel" class="form-control" placeholder="01XXXXXXXXX"></div>
+      <div class="form-group"><label>ইমেইল (ঐচ্ছিক)</label><input id="teacherEmail" type="email" class="form-control"></div>
+      <div class="form-group"><label>বিষয়/বিভাগ (ঐচ্ছিক)</label><input id="teacherSubject" class="form-control" placeholder="যেমন: আরবি"></div>
+      <div class="form-group" style="grid-column:span 2"><label>ছবির লিংক (ঐচ্ছিক, https://...)</label><input id="teacherPhoto" class="form-control" placeholder="https://..."></div>
+     </div>
+     <div class="action-row"><button class="btn btn-outline" onclick="resetTeacherForm()">বাতিল</button><button class="btn btn-primary" id="teacherSaveBtn" onclick="saveTeacher()"><span class="material-icons-round">save</span>সংরক্ষণ করুন</button></div>
+    </div>
+    <div class="card">
+     <div class="section-head"><div class="card-title" style="margin:0">সকল সদস্য (<span id="teacherCountAdmin">০</span> জন)</div>
+      <input id="teacherSearchAdmin" class="form-control" style="max-width:300px" placeholder="নাম / পদবি / নাম্বার দিয়ে খুঁজুন..." oninput="filterTeacherListAdmin()"></div>
+     <div class="teacher-grid" id="teacherListBody"></div>
+    </div>
+   </section>
+
+   <!-- IMAGES -->
+   <section id="images" class="section">
+    <div class="info-card"><h3>🖼️ ইউজার অ্যাপের ছবিসমূহ</h3>
+     <p>ছবি কোনো ওয়েবসাইটে (যেমন imgbb) আপলোড করে ডিরেক্ট লিংক (https://...) এখানে বসান। সংরক্ষণ করলে ইউজার অ্যাপে ছবি বদলে যাবে। ফাঁকা রাখলে অ্যাপের ডিফল্ট ছবি ব্যবহার হবে।</p></div>
+    <div class="card">
+     <div class="img-grid" id="imgGrid"></div>
+     <div class="action-row"><button class="btn btn-primary" onclick="saveImages()"><span class="material-icons-round">save</span>সব ছবি সংরক্ষণ করুন</button></div>
+    </div>
+   </section>
+
+   <!-- SETTINGS -->
+   <section id="settings" class="section">
+    <div class="page-head"><h2>মাদরাসা সেটিংস</h2><p>মাদরাসা খোলা না বন্ধ, তা এখানে ঠিক করুন। নোটিশ পাতার উপরে ইউজাররা এটি দেখেন।</p></div>
+    <div class="card form-card">
+     <h3 style="margin-bottom:15px">মাদরাসার বর্তমান অবস্থা</h3>
+     <div class="form-group"><label>অবস্থা</label><select id="madrasaStatusSelect" class="form-control" onchange="toggleCloseReason()"><option value="open">খোলা</option><option value="closed">বন্ধ</option></select></div>
+     <div id="closeReasonGroup" class="form-group" style="display:none"><label>বন্ধের কারণ</label><input id="closeReason" class="form-control"></div>
+     <div class="form-grid"><div class="form-group"><label>শুরুর তারিখ</label><input id="statusStartDate" type="date" class="form-control"></div><div class="form-group"><label>শেষ তারিখ</label><input id="statusEndDate" type="date" class="form-control"></div></div>
+     <button class="btn btn-primary" onclick="saveMadrasaStatus()">স্ট্যাটাস সংরক্ষণ</button>
+    </div>
+    <div class="card form-card">
+     <div class="card-title">Admin সদস্য</div>
+     <p class="hint" style="margin:-6px 0 8px">গোপন কোড জানা কর্তৃপক্ষের সদস্যরা লগইন পাতায় "Create Account" দিয়ে অ্যাকাউন্ট খুললে এখানে যুক্ত হন। কাউকে সরালে তার প্যানেলে প্রবেশ বন্ধ হয়।</p>
+     <div id="adminListBody"></div>
+    </div>
+   </section>
+
+   <!-- AI INSTRUCTIONS -->
+   <section id="ai-settings" class="section">
+    <div class="info-card"><h3>🧠 AI নির্দেশনা</h3>
+     <p>এখানে মাদ্রাসা সম্পর্কিত গুরুত্বপূর্ণ তথ্য ও নির্দেশনা লিখুন। AI শিক্ষক ব্যবহারকারীর প্রশ্নের উত্তর দেওয়ার সময় এই তথ্যকে সর্বোচ্চ গুরুত্ব দেবে।</p></div>
+    <div class="card form-card">
+     <div class="form-group"><label>AI-এর জন্য নির্দেশনাসমূহ</label>
+      <textarea id="aiAdminInstructions" class="form-control" rows="10" placeholder="উদাহরণ: আমাদের মাদ্রাসায় একজন নতুন শিক্ষক যোগদান করেছেন..."></textarea></div>
+     <div class="action-row">
+      <span id="aiUpdateTime" style="color:var(--muted);font-size:12px;margin-right:auto;display:flex;align-items:center"></span>
+      <button class="btn btn-primary" onclick="saveAIInstructions()"><span class="material-icons-round">save</span> নির্দেশনা সংরক্ষণ করুন</button>
+     </div>
+    </div>
+
+    <div class="info-card" style="margin-top:22px"><h3>🔐 AI মডেল ও API Key</h3>
+     <p>ইউজার অ্যাপের AI শিক্ষক যে API Key ও মডেল দিয়ে চলবে তা এখানে ঠিক করুন। দেখতে বা বদলাতে পাসওয়ার্ড লাগবে।</p></div>
+    <div class="card form-card">
+     <div id="aiLock" style="max-width:340px">
+      <div class="form-group"><label>পাসওয়ার্ড</label><input type="password" id="aiPwInput" class="form-control" onkeypress="if(event.key==='Enter')unlockAIConfig()"></div>
+      <div id="aiPwErr" class="login-error" style="margin:0 0 10px">❌ ভুল পাসওয়ার্ড</div>
+      <button class="btn btn-primary" onclick="unlockAIConfig()"><span class="material-icons-round">lock_open</span> যাচাই করুন</button>
+     </div>
+     <div id="aiCfgBox" style="display:none">
+      <div class="form-group"><label>🔑 API Key</label><input id="aiApiKey" class="form-control" autocomplete="off"></div>
+      <div class="form-grid g3">
+       <div class="form-group"><label>প্রাইমারি মডেল</label><input id="aiModel1" class="form-control" list="aiModelList"></div>
+       <div class="form-group"><label>ব্যাকআপ ১</label><input id="aiModel2" class="form-control" list="aiModelList"></div>
+       <div class="form-group"><label>ব্যাকআপ ২</label><input id="aiModel3" class="form-control" list="aiModelList"></div>
+      </div>
+      <datalist id="aiModelList"></datalist>
+      <div class="hint">প্রাইমারি মডেল কাজ না করলে ক্রমানুসারে ব্যাকআপ ১, তারপর ব্যাকআপ ২ ব্যবহার হবে।</div>
+      <div class="action-row">
+       <button class="btn btn-outline" onclick="lockAIConfig()"><span class="material-icons-round">lock</span> লক করুন</button>
+       <button class="btn btn-primary" onclick="saveAIConfig()"><span class="material-icons-round">save</span> সংরক্ষণ করুন</button>
+      </div>
+     </div>
+    </div>
+   </section>
+
+  </div>
+ </div>
+</div>
+<div id="toast" class="toast">Message</div>
+
+<script>
+firebase.initializeApp({
+ apiKey:"AIzaSyCyj0N6uU4RAxX92iV71Bo6sgs3b5h9CkQ",authDomain:"asirganj--madrasa.firebaseapp.com",projectId:"asirganj--madrasa",
+ storageBucket:"asirganj--madrasa.firebasestorage.app",messagingSenderId:"166742137300",appId:"1:166742137300:web:ec0b491f72136aad885e41",measurementId:"G-5P5LJL7VDF"
+});
+const db=firebase.firestore(),auth=firebase.auth(),$=id=>document.getElementById(id);
+const STUDENTS_COL='students',NOTICES_COL='notices',EVENTS_COL='events',SETTINGS_COL='settings',TEACHERS_COL='teachers',VIDEOS_COL='videos';
+const TS=()=>firebase.firestore.FieldValue.serverTimestamp();
+
+/* ইউজার অ্যাপের সাথে মিল রাখা তালিকা */
+const classes=['১ম','২য়','৩য়','৪র্থ','৫ম','৬ষ্ঠ','৭ম','৮ম','৯ম','১০ম','আলিম ১ম বর্ষ','আলিম ২য় বর্ষ'];
+const YEARS=['২০২৬','২০২৭','২০২৮','২০২৯','২০৩০'];
+function examOptionsFor(c){
+ if(c==='১০ম')return['Test','Pre Test'];
+ if(c==='আলিম ১ম বর্ষ')return['Year Change','অর্ধবার্ষিক পরীক্ষা'];
+ return['বার্ষিক পরীক্ষা','অর্ধবার্ষিক পরীক্ষা'];
+}
+['classSelect','autoRollClass','batchClassSelect'].forEach(id=>{$(id).innerHTML=classes.map(c=>`<option ${c==='১০ম'?'selected':''}>${c}</option>`).join('')});
+['yearSelect','autoRollYear','batchYearSelect'].forEach(id=>{$(id).innerHTML=YEARS.map(y=>`<option>${y}</option>`).join('')});
+function linkExam(cid,eid){
+ const c=$(cid),e=$(eid);
+ const fill=()=>{const cur=e.value,o=examOptionsFor(c.value);e.innerHTML=o.map(x=>`<option>${x}</option>`).join('');if(o.includes(cur))e.value=cur};
+ c.addEventListener('change',fill);fill();
+}
+linkExam('classSelect','examSelect');linkExam('autoRollClass','autoRollExam');linkExam('batchClassSelect','batchExamSelect');
+
+$('todayDate').innerText=new Date().toLocaleDateString('bn-BD',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+function convertBnToEnNum(s){if(!s)return'';const m={'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};return String(s).replace(/[০-৯]/g,x=>m[x])}
+const bn=n=>Number(n||0).toLocaleString('bn-BD');
+function showToast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+const escapeHTML=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+const isHttps=u=>/^https:\/\/\S+$/i.test(u||'');
+
+/* THEME / VIEW */
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.theme=document.body.classList.contains('dark')?'dark':'light';$('themeIcon').textContent=document.body.classList.contains('dark')?'light_mode':'dark_mode'}
+if(localStorage.theme==='dark'){document.body.classList.add('dark');$('themeIcon').textContent='light_mode'}
+function toggleSidebar(){if(document.body.classList.contains('force-pc'))return;const sb=$('sidebar');sb.classList.toggle('open');$('scrim').classList.toggle('show',sb.classList.contains('open'))}
+function goTab(id){const t=document.querySelector(`[data-tab="${id}"]`);if(t)t.click()}
+function activateTab(x){
+ document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+ document.querySelectorAll('.section').forEach(i=>i.classList.remove('active'));
+ x.classList.add('active');const s=$(x.dataset.tab);if(s)s.classList.add('active');
+ const ic=x.querySelector('.material-icons-round');$('topbar-title').textContent=x.textContent.replace(ic?ic.textContent:'','').replace('🤖','').trim();
+ if(document.body.classList.contains('force-mobile')||window.innerWidth<760){$('sidebar').classList.remove('open');$('scrim').classList.remove('show')}
+}
+document.querySelectorAll('.nav-item').forEach(x=>x.onclick=()=>activateTab(x));
+function toggleModeMenu(e){if(e)e.stopPropagation();$('modeMenu').classList.toggle('show')}
+document.addEventListener('click',e=>{const w=document.querySelector('.mode-menu-wrap');if(w&&!w.contains(e.target))$('modeMenu').classList.remove('show')});
+function setViewMode(mode){
+ document.body.classList.remove('force-pc','force-mobile');$('sidebar').classList.remove('open');$('scrim').classList.remove('show');
+ document.body.classList.add(mode==='pc'?'force-pc':'force-mobile');localStorage.setItem('viewMode',mode);
+ showToast(mode==='pc'?'PC Mode চালু হয়েছে':'Mobile Mode চালু হয়েছে');updateModeButtons();$('modeMenu').classList.remove('show');
+}
+function updateModeButtons(){const m=localStorage.getItem('viewMode');$('pcModeBtn').classList.toggle('active',m==='pc');$('mobileModeBtn').classList.toggle('active',m==='mobile')}
+(function(){const s=localStorage.getItem('viewMode');if(s==='pc')document.body.classList.add('force-pc');else if(s==='mobile')document.body.classList.add('force-mobile');updateModeButtons()})();
+
+/* AUTH */
+function toggleRegisterModal(){$('registerModal').classList.toggle('active');$('regError').style.display='none'}
+function loginAdmin(){auth.signInWithEmailAndPassword($('loginEmail').value.trim(),$('loginPassword').value).catch(e=>{$('loginError').style.display='block';$('loginError').textContent='লগইন ব্যর্থ: '+e.message})}
+function logoutAdmin(){auth.signOut()}
+let registering=false;
+async function createAccount(){
+ const err=$('regError'),code=$('regSecret').value.trim();
+ if(!code){err.style.display='block';err.textContent='গোপন কোড দিন';return}
+ registering=true;err.style.display='none';
+ let cred=null;
+ try{
+  cred=await auth.createUserWithEmailAndPassword($('regEmail').value.trim(),$('regPassword').value);
+  await db.collection('admins').doc(cred.user.uid).set({code,email:cred.user.email,createdAt:TS()});
+  registering=false;toggleRegisterModal();showToast('Account সফলভাবে তৈরি হয়েছে');enterAdmin(cred.user);
+ }catch(e){
+  let msg=e.message;
+  if(cred&&cred.user){try{await cred.user.delete()}catch(x){}if(e.code==='permission-denied')msg='ভুল গোপন কোড! Account তৈরি হয়নি।'}
+  registering=false;err.style.display='block';err.textContent=msg;
+ }
+}
+function showLogin(){$('loginPage').style.display='flex';$('adminLayout').classList.remove('active');$('activateModal').classList.remove('active')}
+function showActivate(u){$('loginPage').style.display='flex';$('adminLayout').classList.remove('active');$('actEmail').textContent=u.email||'';$('actError').style.display='none';$('activateModal').classList.add('active')}
+async function activateAccess(){
+ const u=auth.currentUser,code=$('actCode').value.trim(),err=$('actError');if(!u)return;
+ if(!code){err.style.display='block';err.textContent='গোপন কোড দিন';return}
+ try{await db.collection('admins').doc(u.uid).set({code,email:u.email,createdAt:TS()});$('actCode').value='';$('activateModal').classList.remove('active');enterAdmin(u)}
+ catch(e){err.style.display='block';err.textContent=e.code==='permission-denied'?'ভুল গোপন কোড!':e.message}
+}
+function enterAdmin(u){
+ $('loginPage').style.display='none';$('adminLayout').classList.add('active');$('adminEmail').textContent=u.email;
+ loadDashboardStats();loadStudents();loadPublishList();loadNoticesAdmin();loadEventsAdmin();loadVideosAdmin();
+ loadSettings();seedTeachersOnce().then(loadTeachers);loadAIInstructions();loadImages();loadAdmins();loadLive();
+}
+auth.onAuthStateChanged(async u=>{
+ if(!u){showLogin();return}
+ if(registering)return;
+ try{const d=await db.collection('admins').doc(u.uid).get();d.exists?enterAdmin(u):showActivate(u)}
+ catch(e){showActivate(u)}
+});
+async function loadAdmins(){
+ try{
+  const snap=await db.collection('admins').get(),me=auth.currentUser&&auth.currentUser.uid;
+  $('adminListBody').innerHTML=snap.docs.map(d=>{const x=d.data();
+   return `<div class="notice"><div class="notice-icon" style="background:var(--greensoft);color:var(--green)"><span class="material-icons-round">admin_panel_settings</span></div><div style="flex:1"><h4>${escapeHTML(x.email||'')}${d.id===me?'<span class="tag">আপনি</span>':''}</h4></div>${d.id===me?'':`<div class="acts"><button class="btn btn-danger" onclick="removeAdmin('${d.id}')">সরান</button></div>`}</div>`}).join('')||'<p style="color:var(--muted);font-size:12px">কোনো Admin নেই</p>';
+ }catch(e){console.error(e)}
+}
+async function removeAdmin(id){
+ if(!confirm('এই সদস্যের Admin অ্যাক্সেস বন্ধ করবেন?'))return;
+ try{await db.collection('admins').doc(id).delete();showToast('অ্যাক্সেস বন্ধ করা হয়েছে');loadAdmins()}catch(e){alert(e.message)}
+}
+
+/* DASHBOARD */
+function updateDonutChart(p,d){
+ const total=p+d,el=$('donutChart');$('publishedCount').textContent=bn(p);$('draftCount').textContent=bn(d);
+ if(!total){el.style.background='conic-gradient(var(--muted) 0% 100%)';return}
+ const pct=p/total*100;el.style.background=`conic-gradient(var(--green) 0% ${pct}%,var(--gold) ${pct}% 100%)`;
+}
+async function loadTimeline(){
+ const c=$('timelineContainer'),d=new Date(),today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ try{
+  const es=await db.collection(EVENTS_COL).where('date','==',today).get();let items=[];
+  es.forEach(x=>{const e=x.data();items.push({color:'var(--blue)',title:e.name||'অনুষ্ঠান',detail:`${e.time||''} | ${e.location||e.venue||''}`,time:'আজ'})});
+  if(!items.length)items=[{color:'var(--green)',title:'Admin Panel সক্রিয়',detail:'সবকিছু ঠিকঠাক চলছে',time:'আজ'},{color:'var(--gold)',title:'Firebase সংযুক্ত',detail:'ডেটাবেস অনলাইন',time:'Live'},{color:'var(--red)',title:'রেজাল্ট প্রকাশ ব্যবস্থা',detail:'Bulk Publish উপলব্ধ',time:'সক্রিয়'}];
+  c.innerHTML=items.map(i=>`<div class="timeline-item"><i class="timeline-dot" style="background:${i.color}"></i><div><p><strong>${escapeHTML(i.title)}</strong> ${i.detail?'— '+escapeHTML(i.detail):''}</p><small>${i.time}</small></div></div>`).join('');
+ }catch(e){c.innerHTML='<div class="timeline-item"><div><p>কার্যক্রম লোড করা যায়নি</p></div></div>'}
+}
+async function loadDashboardStats(){
+ try{
+  const s=await db.collection(STUDENTS_COL).get();let pass=0,fail=0,pub=0,dr=0,recent=[];
+  s.forEach(d=>{const x={id:d.id,...d.data()};recent.push(x);x.status==='উত্তীর্ণ'?pass++:fail++;x.published?pub++:dr++});
+  $('totalStudents').textContent=bn(s.size);$('totalPass').textContent=bn(pass);$('totalFail').textContent=bn(fail);
+  const n=await db.collection(NOTICES_COL).get();$('totalNotices').textContent=bn(n.size);
+  updateDonutChart(pub,dr);
+  recent.sort((a,b)=>(b.created_at?.seconds||0)-(a.created_at?.seconds||0));recent=recent.slice(0,5);
+  $('recentStudents').innerHTML=recent.length?recent.map(x=>`<tr><td>${escapeHTML(x.student_id)}</td><td>${escapeHTML(x.name)}</td><td>${escapeHTML(x.class)}</td><td>${escapeHTML(x.roll||'-')}</td><td><span class="badge ${x.published?'badge-published':'badge-draft'}">${x.published?'Published':'Draft'}</span></td></tr>`).join(''):'<tr><td colspan="5">কোনো শিক্ষার্থী নেই</td></tr>';
+  loadTimeline();
+ }catch(e){console.error(e)}
+}
+
+/* RESULTS */
+function calculateGrade(m,f){
+ const p=m/f*100;
+ if(p>=80)return{grade:'A+',gp:'5.00'};if(p>=70)return{grade:'A',gp:'4.00'};if(p>=60)return{grade:'A-',gp:'3.50'};
+ if(p>=50)return{grade:'B',gp:'3.00'};if(p>=40)return{grade:'C',gp:'2.00'};if(p>=33)return{grade:'D',gp:'1.00'};return{grade:'F',gp:'0.00'};
+}
+function initSubjectTable(subjects=[]){document.querySelector('#subjectTable tbody').innerHTML='';subjects.forEach(s=>addSubjectRow(s))}
+function addSubjectRow(s={}){
+ document.querySelector('#subjectTable tbody').insertAdjacentHTML('beforeend',`<tr><td><input class="form-control sub-name" value="${escapeHTML(s.name||'')}" placeholder="বিষয়ের নাম"></td><td><input type="number" class="form-control sub-full" value="${s.full_marks||100}"></td><td><input type="number" class="form-control sub-marks" value="${s.marks||0}"></td><td><button class="btn btn-danger" style="padding:6px" onclick="this.closest('tr').remove()">ডিলিট</button></td></tr>`);
+}
+initSubjectTable();
+
+async function saveStudentResult(){
+ const name=$('studentName').value.trim(),student_id=$('studentIdInput').value.trim(),roll=$('rollInput').value.trim()||'0',editingId=$('editingStudentId').value;
+ if(!name||!student_id){alert('শিক্ষার্থীর নাম ও Student ID দিন');return}
+ let subjects=[],totalMarks=0,totalGP=0,hasFail=false;
+ document.querySelectorAll('#subjectTable tbody tr').forEach(r=>{
+  const sn=r.querySelector('.sub-name').value.trim(),fm=+r.querySelector('.sub-full').value||100,om=+r.querySelector('.sub-marks').value||0,g=calculateGrade(om,fm);
+  totalMarks+=om;totalGP+=+g.gp;if(g.grade==='F')hasFail=true;
+  subjects.push({name:sn,full_marks:fm,marks:om,grade:g.grade,grade_point:g.gp});
+ });
+ if(!subjects.length){alert('কমপক্ষে একটি বিষয় যোগ করুন');return}
+ const data={name,student_id,student_id_en:convertBnToEnNum(student_id),roll,roll_no:roll,father_name:$('fatherName').value.trim(),mother_name:$('motherName').value.trim(),section:$('sectionInput').value.trim(),class:$('classSelect').value,exam:$('examSelect').value,academic_year:$('yearSelect').value,subjects,total_marks:totalMarks,gpa:hasFail?'0.00':(totalGP/subjects.length).toFixed(2),status:hasFail?'অনুত্তীর্ণ':'উত্তীর্ণ',published:false,updated_at:TS()};
+ try{
+  if(editingId){const old=(await db.collection(STUDENTS_COL).doc(editingId).get()).data();data.published=!!old.published;await db.collection(STUDENTS_COL).doc(editingId).update(data);showToast('রেজাল্ট আপডেট হয়েছে')}
+  else{data.created_at=TS();await db.collection(STUDENTS_COL).add(data);showToast('রেজাল্ট সংরক্ষিত হয়েছে')}
+  resetStudentForm();loadStudents();loadPublishList();loadDashboardStats();
+ }catch(e){alert(e.message)}
+}
+function resetStudentForm(){['studentName','studentIdInput','rollInput','fatherName','motherName','sectionInput','editingStudentId'].forEach(i=>$(i).value='');$('formTitle').textContent='নতুন রেজাল্ট যোগ করুন';initSubjectTable()}
+
+let allStudentsCache=[],allPublishCache=[];
+async function loadStudents(){
+ try{const snap=await db.collection(STUDENTS_COL).get();allStudentsCache=[];snap.forEach(d=>allStudentsCache.push({id:d.id,...d.data()}));
+  allStudentsCache.sort((a,b)=>(b.created_at?.seconds||0)-(a.created_at?.seconds||0));renderStudentTable(allStudentsCache)}catch(e){console.error(e)}
+}
+function renderStudentTable(list){
+ $('studentListBody').innerHTML=list.length?list.map(s=>`<tr><td>${escapeHTML(s.student_id)}</td><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.class)}</td><td>${escapeHTML(s.roll||'-')}</td><td><span class="badge ${s.published?'badge-published':'badge-draft'}">${s.published?'Published':'Draft'}</span></td><td><button class="btn btn-outline" onclick="editStudent('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteStudent('${s.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="6">কোনো শিক্ষার্থী নেই</td></tr>';
+}
+function filterStudentList(){const q=$('studentSearchInput').value.toLowerCase();renderStudentTable(allStudentsCache.filter(s=>(s.name||'').toLowerCase().includes(q)||(s.student_id||'').toLowerCase().includes(q)))}
+async function editStudent(id){
+ const d=await db.collection(STUDENTS_COL).doc(id).get();if(!d.exists)return;const s=d.data();
+ $('editingStudentId').value=id;$('studentName').value=s.name||'';$('studentIdInput').value=s.student_id||'';$('rollInput').value=s.roll||s.roll_no||'';
+ $('fatherName').value=s.father_name||'';$('motherName').value=s.mother_name||'';$('sectionInput').value=s.section||'';
+ $('classSelect').value=s.class||'১০ম';$('classSelect').dispatchEvent(new Event('change'));
+ $('examSelect').value=s.exam||examOptionsFor($('classSelect').value)[0];$('yearSelect').value=s.academic_year||'২০২৬';
+ initSubjectTable(s.subjects||[]);$('formTitle').textContent='রেজাল্ট এডিট করুন';goTab('add-result');
+}
+async function deleteStudent(id){if(!confirm('এই শিক্ষার্থীর রেজাল্ট ডিলিট করবেন?'))return;await db.collection(STUDENTS_COL).doc(id).delete();showToast('ডিলিট হয়েছে');loadStudents();loadPublishList();loadDashboardStats()}
+async function deleteAllStudents(){
+ if(!confirm('সকল শিক্ষার্থীর তথ্য স্থায়ীভাবে মুছে যাবে। নিশ্চিত?'))return;
+ const b=$('deleteAllBtn');b.disabled=true;b.textContent='Deleting...';
+ try{const snap=await db.collection(STUDENTS_COL).get();let batch=db.batch(),c=0;
+  for(const d of snap.docs){batch.delete(d.ref);c++;if(c===450){await batch.commit();batch=db.batch();c=0}}
+  if(c)await batch.commit();showToast('সকল শিক্ষার্থী ডিলিট হয়েছে');loadStudents();loadPublishList();loadDashboardStats();
+ }catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Delete all'}
+}
+async function generateAutomaticRolls(){
+ const cls=$('autoRollClass').value,exam=$('autoRollExam').value,year=$('autoRollYear').value;
+ if(!confirm(`${cls} এর রোল জেনারেট করবেন?`))return;
+ try{
+  const snap=await db.collection(STUDENTS_COL).where('class','==',cls).where('exam','==',exam).where('academic_year','==',year).get();
+  if(snap.empty){alert('কোনো শিক্ষার্থী নেই');return}
+  const arr=snap.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(y.total_marks||0)-(x.total_marks||0));
+  let batch=db.batch(),c=0;
+  for(let i=0;i<arr.length;i++){const r=String(i+1);batch.update(db.collection(STUDENTS_COL).doc(arr[i].id),{roll:r,roll_no:r,merit_position:r,position:r});c++;if(c===500){await batch.commit();batch=db.batch();c=0}}
+  if(c)await batch.commit();showToast('Automatic Roll সফলভাবে তৈরি হয়েছে');loadStudents();
+ }catch(e){alert(e.message)}
+}
+async function loadPublishList(){try{const snap=await db.collection(STUDENTS_COL).get();allPublishCache=[];snap.forEach(d=>allPublishCache.push({id:d.id,...d.data()}));renderPublishTable(allPublishCache)}catch(e){console.error(e)}}
+function renderPublishTable(list){
+ $('publishListBody').innerHTML=list.length?list.map(s=>`<tr><td>${escapeHTML(s.student_id)}</td><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.class)}</td><td>${escapeHTML(s.exam)}</td><td>${escapeHTML(s.academic_year)}</td><td><span class="badge ${s.published?'badge-published':'badge-draft'}">${s.published?'Published':'Draft'}</span></td><td><button class="btn btn-outline" onclick="toggleSinglePublish('${s.id}',${!s.published})">${s.published?'Unpublish':'Publish'}</button></td></tr>`).join(''):'<tr><td colspan="7">কোনো রেকর্ড নেই</td></tr>';
+}
+function filterPublishList(){
+ const q=$('publishSearchInput').value.toLowerCase(),f=$('publishFilter').value;
+ let x=allPublishCache.filter(s=>(s.name||'').toLowerCase().includes(q)||(s.student_id||'').toLowerCase().includes(q));
+ if(f==='draft')x=x.filter(s=>!s.published);if(f==='published')x=x.filter(s=>s.published);renderPublishTable(x);
+}
+async function toggleSinglePublish(id,st){await db.collection(STUDENTS_COL).doc(id).update({published:st});showToast(st?'Publish করা হয়েছে':'Unpublish করা হয়েছে');loadPublishList();loadStudents();loadDashboardStats()}
+async function publishBatchResults(st){
+ const cls=$('batchClassSelect').value,exam=$('batchExamSelect').value,year=$('batchYearSelect').value;
+ if(!confirm(`${cls} এর সব রেজাল্ট ${st?'Publish':'Unpublish'} করবেন?`))return;
+ try{
+  const snap=await db.collection(STUDENTS_COL).where('class','==',cls).where('exam','==',exam).where('academic_year','==',year).get();
+  if(snap.empty){alert('কোনো শিক্ষার্থী নেই');return}
+  let batch=db.batch(),c=0;
+  for(const d of snap.docs){batch.update(d.ref,{published:st});c++;if(c===500){await batch.commit();batch=db.batch();c=0}}
+  if(c)await batch.commit();showToast('Bulk update সফল হয়েছে');loadPublishList();loadStudents();loadDashboardStats();
+ }catch(e){alert(e.message)}
+}
+
+/* NOTICES (user app: title, details, category, pinned, attachment, date) */
+let allNotices=[];
+async function saveNotice(){
+ const title=$('noticeTitle').value.trim();if(!title){alert('শিরোনাম দিন');return}
+ const att=$('noticeAttachment').value.trim();
+ if(att&&!isHttps(att)){alert('সংযুক্তি লিংক অবশ্যই https:// দিয়ে শুরু হতে হবে');return}
+ const imp=$('noticeImportant').checked;
+ const data={title,details:$('noticeDetails').value.trim(),category:$('noticeCategory').value.trim(),attachment:att,pinned:imp,isImportant:imp};
+ const id=$('editingNoticeId').value;
+ try{
+  if(id)await db.collection(NOTICES_COL).doc(id).update(data);
+  else await db.collection(NOTICES_COL).add({...data,date:TS(),notificationSent:false});
+  resetNoticeForm();showToast('নোটিশ সংরক্ষণ করা হয়েছে');loadNoticesAdmin();loadDashboardStats();
+ }catch(e){alert(e.message)}
+}
+function resetNoticeForm(){['noticeTitle','noticeDetails','noticeCategory','noticeAttachment','editingNoticeId'].forEach(i=>$(i).value='');$('noticeImportant').checked=false;$('noticeFormTitle').textContent='নতুন নোটিশ যোগ করুন'}
+async function loadNoticesAdmin(){
+ try{
+  const snap=await db.collection(NOTICES_COL).orderBy('date','desc').get();allNotices=[];snap.forEach(d=>allNotices.push({id:d.id,...d.data()}));
+  $('catList').innerHTML=[...new Set(allNotices.map(n=>n.category).filter(Boolean))].map(c=>`<option value="${escapeHTML(c)}">`).join('');
+  $('noticeListAdmin').innerHTML=allNotices.map(n=>`<div class="notice"><div class="notice-icon"><span class="material-icons-round">${(n.pinned||n.isImportant)?'push_pin':'article'}</span></div><div style="flex:1"><h4>${escapeHTML(n.title)}${n.category?`<span class="tag">${escapeHTML(n.category)}</span>`:''}${(n.pinned||n.isImportant)?'<span class="tag red">পিন</span>':''}</h4><p>${escapeHTML(n.details||'')}</p></div><div class="acts"><button class="btn btn-outline" onclick="editNotice('${n.id}')">Edit</button><button class="btn btn-danger" onclick="deleteNotice('${n.id}')">ডিলিট</button></div></div>`).join('')||'<p style="color:var(--muted);font-size:12px">কোনো নোটিশ নেই</p>';
+  const imp=allNotices.filter(n=>n.pinned||n.isImportant),top=(imp.length?imp:allNotices).slice(0,3);
+  $('dashboardNotices').innerHTML=top.map(n=>`<div class="notice"><div class="notice-icon"><span class="material-icons-round">${(n.pinned||n.isImportant)?'push_pin':'article'}</span></div><div><h4>${escapeHTML(n.title)}</h4><p>${escapeHTML((n.details||'').slice(0,80))}</p></div></div>`).join('')||'<p style="color:var(--muted);font-size:12px">কোনো নোটিশ নেই</p>';
+ }catch(e){console.error(e)}
+}
+function editNotice(id){
+ const n=allNotices.find(x=>x.id===id);if(!n)return;
+ $('editingNoticeId').value=id;$('noticeTitle').value=n.title||'';$('noticeDetails').value=n.details||'';$('noticeCategory').value=n.category||'';
+ $('noticeAttachment').value=n.attachment||'';$('noticeImportant').checked=!!(n.pinned||n.isImportant);
+ $('noticeFormTitle').textContent='নোটিশ এডিট করুন';document.querySelector('.content').scrollTo(0,0);
+}
+async function deleteNotice(id){if(!confirm('ডিলিট করবেন?'))return;await db.collection(NOTICES_COL).doc(id).delete();loadNoticesAdmin();loadDashboardStats()}
+
+/* EVENTS (user app reads: name, details, date, time, location) */
+let allEvents=[];
+async function saveEvent(){
+ const name=$('eventName').value.trim();if(!name){alert('অনুষ্ঠানের নাম দিন');return}
+ const loc=$('eventVenue').value.trim();
+ const data={name,details:$('eventDetails').value.trim(),date:$('eventDate').value,time:$('eventTime').value,location:loc,venue:loc,status:$('eventStatus').value};
+ const id=$('editingEventId').value;
+ try{
+  if(id)await db.collection(EVENTS_COL).doc(id).update(data);else await db.collection(EVENTS_COL).add(data);
+  showToast('অনুষ্ঠান সংরক্ষিত হয়েছে');resetEventForm();loadEventsAdmin();
+ }catch(e){alert(e.message)}
+}
+function resetEventForm(){['eventName','eventDetails','eventDate','eventTime','eventVenue','editingEventId'].forEach(i=>$(i).value='');$('eventFormTitle').textContent='নতুন অনুষ্ঠান যোগ করুন'}
+async function loadEventsAdmin(){
+ const snap=await db.collection(EVENTS_COL).get();allEvents=[];snap.forEach(d=>allEvents.push({id:d.id,...d.data()}));
+ allEvents.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+ $('eventListAdmin').innerHTML=allEvents.map(e=>`<div class="notice"><div class="notice-icon" style="background:#e8efff;color:var(--blue)"><span class="material-icons-round">event</span></div><div style="flex:1"><h4>${escapeHTML(e.name)} (${escapeHTML(e.status||'')})</h4><p>${escapeHTML(e.date||'')} | ${escapeHTML(e.time||'')} | ${escapeHTML(e.location||e.venue||'')}</p></div><div class="acts"><button class="btn btn-outline" onclick="editEvent('${e.id}')">Edit</button><button class="btn btn-danger" onclick="deleteEvent('${e.id}')">ডিলিট</button></div></div>`).join('')||'<p style="color:var(--muted);font-size:12px">কোনো অনুষ্ঠান নেই</p>';
+}
+function editEvent(id){
+ const e=allEvents.find(x=>x.id===id);if(!e)return;
+ $('editingEventId').value=id;$('eventName').value=e.name||'';$('eventDetails').value=e.details||'';$('eventDate').value=e.date||'';
+ $('eventTime').value=e.time||'';$('eventVenue').value=e.location||e.venue||'';$('eventStatus').value=e.status||'আসন্ন';
+ $('eventFormTitle').textContent='অনুষ্ঠান এডিট করুন';document.querySelector('.content').scrollTo(0,0);
+}
+async function deleteEvent(id){if(!confirm('ডিলিট করবেন?'))return;await db.collection(EVENTS_COL).doc(id).delete();loadEventsAdmin()}
+
+/* VIDEOS (user app reads collection 'videos': title, url, category) */
+let allVideos=[];
+async function saveVideo(){
+ const title=$('videoTitle').value.trim(),url=$('videoUrl').value.trim();
+ if(!title||!url){alert('ভিডিওর শিরোনাম ও লিংক দিন');return}
+ if(!isHttps(url)){alert('ভিডিও লিংক অবশ্যই https:// দিয়ে শুরু হতে হবে');return}
+ const data={title,url,category:$('videoCategory').value.trim()};const id=$('editingVideoId').value;
+ try{
+  if(id)await db.collection(VIDEOS_COL).doc(id).update(data);else await db.collection(VIDEOS_COL).add({...data,created_at:TS()});
+  showToast('ভিডিও সংরক্ষিত হয়েছে');resetVideoForm();loadVideosAdmin();
+ }catch(e){alert(e.message)}
+}
+function resetVideoForm(){['videoTitle','videoUrl','videoCategory','editingVideoId'].forEach(i=>$(i).value='');$('videoFormTitle').textContent='নতুন ভিডিও যোগ করুন'}
+async function loadVideosAdmin(){
+ try{
+  const snap=await db.collection(VIDEOS_COL).get();allVideos=[];snap.forEach(d=>allVideos.push({id:d.id,...d.data()}));
+  $('videoCount').textContent=bn(allVideos.length);
+  $('videoListAdmin').innerHTML=allVideos.map(v=>`<div class="notice"><div class="notice-icon" style="background:#e8efff;color:var(--blue)"><span class="material-icons-round">smart_display</span></div><div style="flex:1"><h4>${escapeHTML(v.title)}${v.category?`<span class="tag">${escapeHTML(v.category)}</span>`:''}</h4><p style="white-space:normal;word-break:break-all">${escapeHTML(v.url)}</p></div><div class="acts"><button class="btn btn-outline" onclick="editVideo('${v.id}')">Edit</button><button class="btn btn-danger" onclick="deleteVideo('${v.id}')">ডিলিট</button></div></div>`).join('')||'<p style="color:var(--muted);font-size:12px">কোনো ভিডিও নেই (অ্যাপে ডিফল্ট ভিডিও দেখাচ্ছে)</p>';
+ }catch(e){console.error(e)}
+}
+function editVideo(id){const v=allVideos.find(x=>x.id===id);if(!v)return;$('editingVideoId').value=id;$('videoTitle').value=v.title||'';$('videoUrl').value=v.url||'';$('videoCategory').value=v.category||'';$('videoFormTitle').textContent='ভিডিও এডিট করুন';document.querySelector('.content').scrollTo(0,0)}
+async function deleteVideo(id){if(!confirm('ডিলিট করবেন?'))return;await db.collection(VIDEOS_COL).doc(id).delete();loadVideosAdmin()}
+
+/* TEACHERS (user app reads: name, name_en, designation/role, group, phone, email, subject, photo, order) */
+let allTeachersAdmin=[];
+const GROUP_LABEL={teacher:'শিক্ষক',staff:'কর্মচারী',admin:'প্রশাসনিক'};
+
+/* একবারের জন্য: পুরনো সব শিক্ষক মুছে ১৯ জনকে নির্দিষ্ট ক্রমে যোগ করে (settings/teacherSeed2026 ফ্ল্যাগ দিয়ে দ্বিতীয়বার চলে না) */
+const SEED_TEACHERS=[
+["নুরুল হুদা","01712940499"],["কয়েক আহমদ","01712815705"],["রুহুল আমিন","01734741578"],
+["মো মিজানুর রহমান","01723058084"],["মো সরওয়ার আলম","01738417790"],["বি.এম. জাহাঙ্গীর আলম","01719148283"],
+["মো আমিনুর রহমান","01719148283"],["মো শফিউল আজম","01714605661"],["মো মনারুল ইসলাম","01756870045"],
+["হোসাইন আহমদ","01715644722"],["আশরাফ আলী","01711244501"],["অনুপ কুমার বসাক","01758449501"],
+["মো আশরাফুল ইসলাম","01723836920"],["মো আতাউর রহমান","01739049099"],["মো ইয়াছির আরাফাত","017112445501"],
+["গোবিন্দ চন্দ্র পাল","01734141355"],["ফখর উদ্দিন","01741611733"],["জামিল আহমদ","01753351038"],["ছলিম উদ্দিন","01815813415"]
+];
+async function seedTeachersOnce(){
+ try{
+  const flag=db.collection(SETTINGS_COL).doc('teacherSeed2026');
+  if((await flag.get()).exists)return;
+  const snap=await db.collection(TEACHERS_COL).get();
+  let b=db.batch();snap.docs.forEach(d=>b.delete(d.ref));await b.commit();
+  b=db.batch();
+  SEED_TEACHERS.forEach((t,i)=>b.set(db.collection(TEACHERS_COL).doc(),{name:t[0],name_en:'',role:'',designation:'',group:'teacher',phone:t[1],email:'',subject:'',photo:'',order:i+1,created_at:TS(),updated_at:TS()}));
+  await b.commit();
+  await flag.set({done:true,at:TS()});
+  showToast('১৯ জন শিক্ষক যোগ হয়েছে');
+ }catch(e){console.error('seed',e);alert('শিক্ষক তালিকা বদলাতে সমস্যা: '+e.message)}
+}
+async function loadTeachers(){
+ try{const snap=await db.collection(TEACHERS_COL).get();allTeachersAdmin=[];snap.forEach(d=>allTeachersAdmin.push({id:d.id,...d.data()}));allTeachersAdmin.sort((a,b)=>(a.order??9999)-(b.order??9999)||(a.name||'').localeCompare(b.name||'','bn'));renderTeacherTableAdmin(allTeachersAdmin)}catch(e){console.error(e)}
+}
+const tRole=t=>t.designation||t.role||t.post||t.position||'';
+function renderTeacherTableAdmin(list){
+ $('teacherCountAdmin').textContent=bn(allTeachersAdmin.length);
+ $('teacherListBody').innerHTML=list.length?list.map(t=>`
+  <div class="teacher-card"><div class="teacher-card-top">
+   <div class="teacher-card-avatar">${isHttps(t.photo)?`<img src="${escapeHTML(t.photo)}" alt="">`:escapeHTML((t.name||'?').trim()[0]||'?')}</div>
+   <div><div class="teacher-card-name">${escapeHTML(t.name)}</div>${tRole(t)?`<span class="teacher-card-role">${escapeHTML(tRole(t))}</span>`:''}${t.group?`<span class="tag">${GROUP_LABEL[t.group]||''}</span>`:''}</div></div>
+   <div class="teacher-card-phone"><span class="material-icons-round">call</span>${escapeHTML(t.phone)}</div>
+   <div class="teacher-card-actions"><button class="btn btn-outline" onclick="editTeacher('${t.id}')">Edit</button><button class="btn btn-danger" onclick="deleteTeacher('${t.id}')">Delete</button></div></div>`).join('')
+  :'<div class="empty-admin"><span>👨‍🏫</span>কোনো সদস্য নেই — উপরের ফর্ম থেকে যোগ করুন।</div>';
+}
+function filterTeacherListAdmin(){
+ const q=$('teacherSearchAdmin').value.trim().toLowerCase();
+ renderTeacherTableAdmin(allTeachersAdmin.filter(t=>((t.name||'')+' '+tRole(t)+' '+(t.phone||'')+' '+(t.name_en||'')).toLowerCase().includes(q)));
+}
+async function saveTeacher(){
+ const name=$('teacherName').value.trim(),role=$('teacherRole').value.trim(),phone=convertBnToEnNum($('teacherPhone').value.trim()),photo=$('teacherPhoto').value.trim(),id=$('editingTeacherId').value;
+ if(!name||!phone){alert('নাম ও ফোন নাম্বার দিন');return}
+ if(photo&&!isHttps(photo)){alert('ছবির লিংক অবশ্যই https:// দিয়ে শুরু হতে হবে');return}
+ const btn=$('teacherSaveBtn');btn.disabled=true;
+ try{
+  const data={name,name_en:$('teacherNameEn').value.trim(),role,designation:role,group:$('teacherGroup').value,phone,email:$('teacherEmail').value.trim(),subject:$('teacherSubject').value.trim(),photo,updated_at:TS()};
+  if(id){await db.collection(TEACHERS_COL).doc(id).update(data);showToast('তথ্য আপডেট হয়েছে')}
+  else{data.created_at=TS();data.order=Math.max(0,...allTeachersAdmin.map(t=>t.order||0))+1;await db.collection(TEACHERS_COL).add(data);showToast('যোগ করা হয়েছে')}
+  resetTeacherForm();loadTeachers();
+ }catch(e){alert(e.message)}finally{btn.disabled=false}
+}
+function resetTeacherForm(){['teacherName','teacherNameEn','teacherRole','teacherPhone','teacherEmail','teacherSubject','teacherPhoto','editingTeacherId'].forEach(i=>$(i).value='');$('teacherGroup').value='teacher';$('teacherFormTitle').textContent='নতুন সদস্য যোগ করুন'}
+function editTeacher(id){
+ const t=allTeachersAdmin.find(x=>x.id===id);if(!t)return;
+ $('editingTeacherId').value=id;$('teacherName').value=t.name||'';$('teacherNameEn').value=t.name_en||'';$('teacherRole').value=tRole(t);
+ $('teacherGroup').value=t.group||'teacher';$('teacherPhone').value=t.phone||'';$('teacherEmail').value=t.email||'';
+ $('teacherSubject').value=t.subject||'';$('teacherPhoto').value=t.photo||'';
+ $('teacherFormTitle').textContent='তথ্য এডিট করুন';document.querySelector('.content').scrollTo(0,0);
+}
+async function deleteTeacher(id){if(!confirm('এই সদস্যের তথ্য ডিলিট করবেন?'))return;try{await db.collection(TEACHERS_COL).doc(id).delete();showToast('ডিলিট হয়েছে');loadTeachers()}catch(e){alert(e.message)}}
+
+/* IMAGES (settings/appImages — ইউজার অ্যাপ এই ডকুমেন্ট পড়ে) */
+const IMAGE_FIELDS=[
+ {key:'logo',label:'মাদরাসার লোগো',hint:'অ্যাপের হেডারে দেখায়',round:true,def:'https://i.ibb.co/q30vd41H/file-000000005704820b91065a2424f27c5b.png'},
+ {key:'hero',label:'হোম পেজের ব্যানার ছবি',hint:'হোম পেজের উপরের বড় ছবি',def:'https://cdn.phototourl.com/member/2026-10-03-b91a4565-38ad-404e-a8a5-a0e675a42f6c.jpg'},
+ {key:'devImage',label:'ডেভেলপার তথ্যের ছবি',hint:'Developer Info উইন্ডোর ছবি',def:'https://i.ibb.co/F40CvcFb/file-000000006a34820b90f9f1f5fa27a244.png'},
+ {key:'devPhoto',label:'(M) Sami-এর ছবি',hint:'Developer Info-তে "(M) Sami" নামে ক্লিক করলে যে ছবি খোলে',def:'https://cdn.phototourl.com/free/2026-09-08-73636774-0906-49f1-b17d-37054bacc8b1.png'}
+];
+let savedImages={};
+function buildImageBoxes(){
+ $('imgGrid').innerHTML=IMAGE_FIELDS.map(f=>`<div class="img-box"><h4>${f.label}</h4><div class="hint" style="margin:0">${f.hint}</div>
+  <div class="img-preview ${f.round?'round':''}" id="pv_${f.key}"><span>ডিফল্ট ছবি ব্যবহার হচ্ছে</span></div>
+  <input class="form-control" id="in_${f.key}" placeholder="https://... ছবির লিংক" oninput="previewImage('${f.key}')">
+  <div class="img-btns"><button class="btn btn-outline" onclick="resetImage('${f.key}')">ডিফল্টে ফেরান</button></div></div>`).join('');
+}
+function previewImage(k){
+ const f=IMAGE_FIELDS.find(x=>x.key===k),v=$('in_'+k).value.trim(),pv=$('pv_'+k);
+ if(v&&!isHttps(v)){pv.innerHTML='<span style="color:var(--red)">লিংক https:// দিয়ে শুরু হতে হবে</span>';return}
+ pv.innerHTML=v?`<img src="${escapeHTML(v)}" alt="" onerror="this.parentNode.innerHTML='<span style=&quot;color:var(--red)&quot;>ছবি লোড হয়নি</span>'">`:`<img src="${escapeHTML(f.def)}" alt="" style="opacity:.55">`;
+}
+function resetImage(k){$('in_'+k).value='';previewImage(k)}
+async function loadImages(){
+ buildImageBoxes();
+ try{
+  const d=await db.collection(SETTINGS_COL).doc('appImages').get();savedImages=d.exists?d.data():{};
+  IMAGE_FIELDS.forEach(f=>{$('in_'+f.key).value=savedImages[f.key]||'';previewImage(f.key)});
+  if(isHttps(savedImages.logo))$('brandLogo').src=savedImages.logo;
+ }catch(e){console.error(e);IMAGE_FIELDS.forEach(f=>previewImage(f.key))}
+}
+async function saveImages(){
+ const data={};
+ for(const f of IMAGE_FIELDS){
+  const v=$('in_'+f.key).value.trim();
+  if(v&&!isHttps(v)){alert(`"${f.label}" এর লিংক অবশ্যই https:// দিয়ে শুরু হতে হবে`);return}
+  data[f.key]=v;
+ }
+ try{await db.collection(SETTINGS_COL).doc('appImages').set({...data,updatedAt:TS()},{merge:true});savedImages=data;if(isHttps(data.logo))$('brandLogo').src=data.logo;showToast('ছবি সংরক্ষণ করা হয়েছে')}
+ catch(e){alert('ছবি সংরক্ষণে সমস্যা: '+e.message)}
+}
+
+/* SETTINGS */
+function toggleCloseReason(){$('closeReasonGroup').style.display=$('madrasaStatusSelect').value==='closed'?'block':'none'}
+async function saveMadrasaStatus(){
+ await db.collection(SETTINGS_COL).doc('madrasaStatus').set({isOpen:$('madrasaStatusSelect').value==='open',reason:$('closeReason').value.trim(),startDate:$('statusStartDate').value,endDate:$('statusEndDate').value});
+ showToast('স্ট্যাটাস আপডেট হয়েছে');
+}
+async function loadSettings(){
+ try{const d=await db.collection(SETTINGS_COL).doc('madrasaStatus').get();
+  if(d.exists){const s=d.data();$('madrasaStatusSelect').value=s.isOpen?'open':'closed';$('closeReason').value=s.reason||'';$('statusStartDate').value=s.startDate||'';$('statusEndDate').value=s.endDate||'';toggleCloseReason()}}catch(e){console.error(e)}
+}
+function globalSearch(){
+ const q=$('globalSearch').value.toLowerCase();if(!q)return;
+ if(allStudentsCache.some(s=>(s.name||'').toLowerCase().includes(q)||(s.student_id||'').toLowerCase().includes(q))){goTab('student-list');$('studentSearchInput').value=q;filterStudentList()}
+}
+
+/* AI INSTRUCTIONS (ai_settings/instructions) */
+async function loadAIInstructions(){
+ try{const d=await db.collection('ai_settings').doc('instructions').get();
+  if(d.exists){const x=d.data();$('aiAdminInstructions').value=x.content||'';if(x.updatedAt)$('aiUpdateTime').innerText='সর্বশেষ আপডেট: '+x.updatedAt.toDate().toLocaleString('bn-BD')}}catch(e){console.error(e)}
+}
+async function saveAIInstructions(){
+ try{await db.collection('ai_settings').doc('instructions').set({content:$('aiAdminInstructions').value.trim(),updatedAt:TS()},{merge:true});showToast('AI নির্দেশনা সংরক্ষণ করা হয়েছে');loadAIInstructions()}
+ catch(e){alert('Error: '+e.message)}
+}
+
+/* AI মডেল ও API Key (ai_settings/config) — পাসওয়ার্ড সুরক্ষিত */
+const AI_PW='369123',AI_MODELS=['gemini-3.8-flash','gemini-3.7-flash','gemini-3.5-flash'];
+$('aiModelList').innerHTML=AI_MODELS.map(m=>`<option value="${m}">`).join('');
+function unlockAIConfig(){
+ if($('aiPwInput').value.trim()!==AI_PW){$('aiPwErr').style.display='block';return}
+ $('aiPwErr').style.display='none';$('aiPwInput').value='';$('aiLock').style.display='none';$('aiCfgBox').style.display='block';loadAIConfig();
+}
+function lockAIConfig(){$('aiCfgBox').style.display='none';$('aiLock').style.display='block';$('aiApiKey').value=''}
+async function loadAIConfig(){
+ try{const d=await db.collection('ai_settings').doc('config').get(),x=d.exists?d.data():{};
+  $('aiApiKey').value=x.apiKey||'';$('aiModel1').value=x.primary||AI_MODELS[0];$('aiModel2').value=x.backup||AI_MODELS[1];$('aiModel3').value=x.backup2||AI_MODELS[2];
+ }catch(e){alert('লোড করা যায়নি: '+e.message)}
+}
+async function saveAIConfig(){
+ const apiKey=$('aiApiKey').value.trim();if(!apiKey){alert('API Key দিন');return}
+ try{await db.collection('ai_settings').doc('config').set({apiKey,primary:$('aiModel1').value.trim()||AI_MODELS[0],backup:$('aiModel2').value.trim()||AI_MODELS[1],backup2:$('aiModel3').value.trim()||AI_MODELS[2],updatedAt:TS()},{merge:true});showToast('AI মডেল ও Key সংরক্ষণ করা হয়েছে')}
+ catch(e){alert('Error: '+e.message)}
+}
+
+/* LIVE (settings/live) */
+function liveEmbed(url){
+ url=(url||'').trim();if(!/^https:\/\//i.test(url))return null;
+ const m=url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+ if(m)return{p:'YouTube',src:`https://www.youtube.com/embed/${m[1]}?autoplay=1&mute=1&rel=0&playsinline=1`};
+ if(/^https:\/\/((www|m|web)\.)?facebook\.com\/|^https:\/\/fb\.watch\//i.test(url))
+  return{p:'Facebook',src:`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`};
+ return null;
+}
+function livePrev(){
+ const e=liveEmbed($('liveUrl').value);
+ $('livePv').textContent=$('liveUrl').value.trim()?(e?'✅ '+e.p+' লিংক চেনা গেছে':'❌ লিংক চেনা যায়নি (YouTube/Facebook https লিংক দিন)'):'';
+}
+async function loadLive(){
+ try{const d=await db.collection(SETTINGS_COL).doc('live').get();
+  if(d.exists){const x=d.data();$('liveTitle').value=x.title||'';$('liveUrl').value=x.url||'';livePrev();
+   $('liveSt').textContent=x.active?'🔴 বর্তমানে লাইভ চালু আছে':'⚪ লাইভ বন্ধ আছে'}}catch(e){console.error(e)}
+}
+async function saveLive(){
+ const url=$('liveUrl').value.trim();
+ if(!liveEmbed(url)){alert('সঠিক YouTube বা Facebook লিংক দিন');return}
+ try{await db.collection(SETTINGS_COL).doc('live').set({active:true,url,title:$('liveTitle').value.trim(),updatedAt:TS()});
+  showToast('লাইভ চালু হয়েছে');loadLive()}catch(e){alert(e.message)}
+}
+async function stopLive(){
+ try{await db.collection(SETTINGS_COL).doc('live').set({active:false,updatedAt:TS()},{merge:true});showToast('লাইভ বন্ধ হয়েছে');loadLive()}catch(e){alert(e.message)}
+}
+</script>
+</body>
+  </html>
